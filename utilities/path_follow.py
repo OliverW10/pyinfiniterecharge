@@ -42,6 +42,7 @@ class PathFollow:
         self.trajectory: trajectory.Trajectory
         self.timer: Timer = Timer()
         self.start_time: float
+        self.finished_tolerance: float = 0.1
 
     def new_path(self, path: Path) -> None:
         """
@@ -83,8 +84,8 @@ class PathFollow:
 
     def path_done(self) -> bool:
         """
-        Check to see if enough time has passed to complete the path
+        Check to see if the 2d distance between the robot and the end waypoint
+        is less than self.finished_tolerance
         """
-        # TODO investigate closing the loop here
-        self.current_path_time = Timer.getFPGATimestamp() - self.start_time
-        return self.current_path_time > self.trajectory.totalTime()
+        end_translation = self.trajectory.sample( self.trajectory.totalTime() ).translation
+        return self.chassis.get_pose().translation.distance(end_translation) < self.finished_tolerance
